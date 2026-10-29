@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>时间线 · 青茉日记</title>
+  <script>
+    (function () {
+      try {
+        const queryTheme = new URLSearchParams(location.search).get("theme");
+        const theme = queryTheme === "light" || queryTheme === "dark"
+          ? queryTheme
+          : (localStorage.getItem("qingji:theme") || "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        localStorage.setItem("qingji:theme", theme);
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body data-root="." data-page="timeline">
+  <header class="timeline-topbar">
+    <div>
+      <p class="page-kicker">MEMORY TIMELINE</p>
+      <h1>青茉日记</h1>
+    </div>
+    <span class="timeline-brand-mark">痕</span>
+  </header>
+
+  <main class="timeline-main">
+    <section class="timeline-stats" id="timeline-stats" aria-label="记录统计"></section>
+
+    <div class="timeline-toolbar">
+      <div class="timeline-filters" id="timeline-filters">
+        <button class="timeline-filter active" type="button" data-filter="all">全部</button>
+        <button class="timeline-filter" type="button" data-filter="note">随笔</button>
+        <button class="timeline-filter" type="button" data-filter="film">影视</button>
+        <button class="timeline-filter" type="button" data-filter="anime">动漫</button>
+      </div>
+      <span class="timeline-count" id="timeline-count">0 条</span>
+    </div>
+
+    <section class="timeline-list" id="timeline-list" aria-live="polite"></section>
+  </main>
+
+  <footer class="timeline-footer">所有记录仅保存在这台手机</footer>
+
+  <script src="./assets/entries.js"></script>
+  <script src="./assets/posters.js"></script>
+  <script src="./assets/custom-entries.js"></script>
+  <script src="./assets/anime-data.js"></script>
+  <script src="./assets/timeline.js"></script>
+</body>
+</html>

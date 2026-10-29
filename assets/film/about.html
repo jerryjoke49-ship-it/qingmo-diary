@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于这个维基 · 银幕档案</title>
+  <meta name="description" content="这个个人影视维基的记录方式、分类规则和维护方法。">
+  <script>
+    (function () {
+      try {
+        const queryTheme = new URLSearchParams(location.search).get("theme");
+        const theme = queryTheme === "light" || queryTheme === "dark"
+          ? queryTheme
+          : (localStorage.getItem("qingji:theme") || "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        localStorage.setItem("qingji:theme", theme);
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body data-root="." data-page="about">
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="top-action menu-toggle" id="menu-toggle" type="button" aria-label="打开导航" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">影</span>
+        <span class="brand-text">银幕档案 <span class="brand-tag">WIKI</span></span>
+      </a>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input class="search-input" id="wiki-search" type="search" placeholder="搜索片名、题材、年份…" aria-label="搜索条目" aria-expanded="false" autocomplete="off">
+          <span class="search-key">/</span>
+        </div>
+        <div class="search-results" id="search-results"></div>
+      </div>
+      <div class="top-actions">
+        <button class="top-action" id="random-entry" type="button" title="随机打开一个条目">🎲 <span class="action-label">随机条目</span></button>
+        <a class="top-action" href="./editor.html" title="本地编辑影评">编辑</a>
+        <a class="top-action" href="./about.html">关于</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+        <div class="side-group">
+          <p class="side-title">导航</p>
+          <a class="side-link" data-nav="home" href="./index.html"><span class="side-icon">⌂</span>首页</a>
+          <a class="side-link" data-nav="entries" href="./entries/index.html"><span class="side-icon">▤</span>全部条目<span class="side-count" id="nav-total">0</span></a>
+          <a class="side-link" data-nav="categories" href="./categories/index.html"><span class="side-icon">◫</span>分类浏览</a>
+          <a class="side-link" data-nav="editor" href="./editor.html"><span class="side-icon">✎</span>本地编辑</a>
+          <a class="side-link" data-nav="about" href="./about.html"><span class="side-icon">ⓘ</span>关于这个维基</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">按类型</p>
+          <a class="side-link" href="./entries/index.html?medium=电影"><span class="side-icon">▸</span>电影<span class="side-count" id="nav-movie">0</span></a>
+          <a class="side-link" href="./entries/index.html?medium=剧集"><span class="side-icon">▸</span>剧集<span class="side-count" id="nav-series">0</span></a>
+          <a class="side-link" href="./entries/index.html?medium=动画"><span class="side-icon">▸</span>动画<span class="side-count" id="nav-animation">0</span></a>
+          <a class="side-link" href="./categories/index.html"><span class="side-icon">#</span>年份索引</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">最近加入</p>
+          <div class="side-recent" id="side-recent"></div>
+        </div>
+        <div class="side-note">
+          <strong>个人影视维基</strong>
+          只记录看过的作品。分类、搜索和条目页都在本地运行，不需要服务器。
+        </div>
+      </aside>
+    <main class="main" id="main">
+      
+      <nav class="breadcrumb"><a href="./index.html">首页</a><span>/</span><span>关于这个维基</span></nav>
+      <div class="prose-page">
+        <p class="page-kicker">ABOUT THIS WIKI</p>
+        <h1 class="page-title">关于这个维基</h1>
+        <p class="page-lede">一个只给自己看的影视记录站。目标不是写影评，而是把看过的作品放在一个可以分类、搜索和慢慢补充的地方。</p>
+
+        <h2>它记录什么</h2>
+        <p>当前收录 <strong id="about-total">0</strong> 条条目。所有作品均由你手动添加，每条记录可以填写片名、年份、类型、题材、主创和地区；没有填写的字段会在条目页显示“待补充”。</p>
+
+        <h2>怎么分类</h2>
+        <ul>
+          <li><strong>类型</strong>：电影、剧集、动画，三者互斥，方便先确定观看媒介。</li>
+          <li><strong>题材</strong>：悬疑、犯罪、剧情、科幻、喜剧等，一部作品可以同时属于多个题材。</li>
+          <li><strong>自定义标签</strong>：在本地编辑器里可以给单部作品增删标签，新标签会自动进入分类和筛选。</li>
+          <li><strong>状态</strong>：当前默认全部为“看过”，以后可以给正在看或想看的作品加状态。</li>
+        </ul>
+
+        <h2>怎么加一部片</h2>
+        <p>打开 <a href="./editor.html">本地编辑</a>，点击“＋ 添加影片”，填写片名、年份、类型和题材，还可以选择上传一张本地海报。</p>
+
+        <h2>我的记录放在哪里</h2>
+        <p>打开 <a href="./editor.html">本地编辑</a>，在左侧选择作品，就可以记录评分、每次观看的日期、我的标签、最记得的镜头和影评。内容保存在当前浏览器里，记得定期点“导出备份”。</p>
+        <p>条目页会优先展示这些个人记录；年份、原始题材、主创、地区和简介收在“相关资料”里，需要时再展开。</p>
+
+        <h2>技术说明</h2>
+        <p>影视列表使用浏览器本地存储，不需要服务器，也不会自动上传任何记录。</p>
+
+        <h2>更新记录</h2>
+        <div class="log-list">
+          <div class="log-row"><time>2026-10-29</time><span>青茉日记 1.0 发布，影视与动漫均从空白片单开始。</span></div>
+        </div>
+
+        <h2>海报</h2>
+        <p>应用不预置海报。手动添加作品时上传的图片会压缩后保存在本机。</p>
+      </div>
+      <footer class="site-footer">
+        <span>© <span data-year></span> 银幕档案 · 个人观影记录</span>
+        <span>所有片单、评分与海报均保存在本机</span>
+        <span><a href="./index.html">首页</a> · <a href="./entries/index.html">全部条目</a> · <a href="./categories/index.html">分类</a></span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="./assets/entries.js"></script>
+  <script src="./assets/posters.js"></script>
+  <script src="./assets/custom-entries.js"></script>
+  <script src="./assets/quotes.js"></script>
+  <script src="./assets/site.js"></script>
+  
+</body>
+</html>

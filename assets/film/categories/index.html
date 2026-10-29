@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类浏览 · 银幕档案</title>
+  <meta name="description" content="按电影、剧集、动画和题材浏览个人观影记录。">
+  <script>
+    (function () {
+      try {
+        const queryTheme = new URLSearchParams(location.search).get("theme");
+        const theme = queryTheme === "light" || queryTheme === "dark"
+          ? queryTheme
+          : (localStorage.getItem("qingji:theme") || "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        localStorage.setItem("qingji:theme", theme);
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root=".." data-page="categories">
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="top-action menu-toggle" id="menu-toggle" type="button" aria-label="打开导航" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">影</span>
+        <span class="brand-text">银幕档案 <span class="brand-tag">WIKI</span></span>
+      </a>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input class="search-input" id="wiki-search" type="search" placeholder="搜索片名、题材、年份…" aria-label="搜索条目" aria-expanded="false" autocomplete="off">
+          <span class="search-key">/</span>
+        </div>
+        <div class="search-results" id="search-results"></div>
+      </div>
+      <div class="top-actions">
+        <button class="top-action" id="random-entry" type="button" title="随机打开一个条目">🎲 <span class="action-label">随机条目</span></button>
+        <a class="top-action" href="../editor.html" title="本地编辑影评">编辑</a>
+        <a class="top-action" href="../about.html">关于</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+        <div class="side-group">
+          <p class="side-title">导航</p>
+          <a class="side-link" data-nav="home" href="../index.html"><span class="side-icon">⌂</span>首页</a>
+          <a class="side-link" data-nav="entries" href="../entries/index.html"><span class="side-icon">▤</span>全部条目<span class="side-count" id="nav-total">0</span></a>
+          <a class="side-link" data-nav="categories" href="../categories/index.html"><span class="side-icon">◫</span>分类浏览</a>
+          <a class="side-link" data-nav="editor" href="../editor.html"><span class="side-icon">✎</span>本地编辑</a>
+          <a class="side-link" data-nav="about" href="../about.html"><span class="side-icon">ⓘ</span>关于这个维基</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">按类型</p>
+          <a class="side-link" href="../entries/index.html?medium=电影"><span class="side-icon">▸</span>电影<span class="side-count" id="nav-movie">0</span></a>
+          <a class="side-link" href="../entries/index.html?medium=剧集"><span class="side-icon">▸</span>剧集<span class="side-count" id="nav-series">0</span></a>
+          <a class="side-link" href="../entries/index.html?medium=动画"><span class="side-icon">▸</span>动画<span class="side-count" id="nav-animation">0</span></a>
+          <a class="side-link" href="../categories/index.html"><span class="side-icon">#</span>年份索引</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">最近加入</p>
+          <div class="side-recent" id="side-recent"></div>
+        </div>
+        <div class="side-note">
+          <strong>个人影视维基</strong>
+          只记录看过的作品。分类、搜索和条目页都在本地运行，不需要服务器。
+        </div>
+      </aside>
+    <main class="main" id="main">
+      
+      <nav class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span>分类浏览</span></nav>
+      <p class="page-kicker">CATEGORIES</p>
+      <h1 class="page-title">分类浏览</h1>
+      <p class="page-lede">点年份、类型或题材，进入对应的全部作品列表；包括你在本地编辑器里新增的题材标签。</p>
+      <div id="categories-root"></div>
+      <footer class="site-footer">
+        <span>© <span data-year></span> 银幕档案 · 个人观影记录</span>
+        <span>所有片单、评分与海报均保存在本机</span>
+        <span><a href="../index.html">首页</a> · <a href="../entries/index.html">全部条目</a> · <a href="../categories/index.html">分类</a></span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../assets/entries.js"></script>
+  <script src="../assets/posters.js"></script>
+  <script src="../assets/custom-entries.js"></script>
+  <script src="../assets/quotes.js"></script>
+  <script src="../assets/site.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,6 @@
+.signing/
+build/
+dist/
+*.zip
+*.apk
+*.keystore

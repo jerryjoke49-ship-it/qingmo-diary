@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本地编辑 · 银幕档案</title>
+  <meta name="description" content="在浏览器本地编辑影视评分和影评，支持导出与导入备份。">
+  <script>
+    (function () {
+      try {
+        const queryTheme = new URLSearchParams(location.search).get("theme");
+        const theme = queryTheme === "light" || queryTheme === "dark"
+          ? queryTheme
+          : (localStorage.getItem("qingji:theme") || "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        localStorage.setItem("qingji:theme", theme);
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body data-root="." data-page="editor">
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="top-action menu-toggle" id="menu-toggle" type="button" aria-label="打开导航" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">影</span>
+        <span class="brand-text">银幕档案 <span class="brand-tag">WIKI</span></span>
+      </a>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input class="search-input" id="wiki-search" type="search" placeholder="搜索片名、题材、年份…" aria-label="搜索条目" aria-expanded="false" autocomplete="off">
+          <span class="search-key">/</span>
+        </div>
+        <div class="search-results" id="search-results"></div>
+      </div>
+      <div class="top-actions">
+        <button class="top-action" id="random-entry" type="button" title="随机打开一个条目">🎲 <span class="action-label">随机条目</span></button>
+        <a class="top-action" href="./editor.html" title="本地编辑影评">编辑</a>
+        <a class="top-action" href="./about.html">关于</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+        <div class="side-group">
+          <p class="side-title">导航</p>
+          <a class="side-link" data-nav="home" href="./index.html"><span class="side-icon">⌂</span>首页</a>
+          <a class="side-link" data-nav="entries" href="./entries/index.html"><span class="side-icon">▤</span>全部条目<span class="side-count" id="nav-total">0</span></a>
+          <a class="side-link" data-nav="categories" href="./categories/index.html"><span class="side-icon">◫</span>分类浏览</a>
+          <a class="side-link" data-nav="editor" href="./editor.html"><span class="side-icon">✎</span>本地编辑</a>
+          <a class="side-link" data-nav="about" href="./about.html"><span class="side-icon">ⓘ</span>关于这个维基</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">按类型</p>
+          <a class="side-link" href="./entries/index.html?medium=电影"><span class="side-icon">▸</span>电影<span class="side-count" id="nav-movie">0</span></a>
+          <a class="side-link" href="./entries/index.html?medium=剧集"><span class="side-icon">▸</span>剧集<span class="side-count" id="nav-series">0</span></a>
+          <a class="side-link" href="./entries/index.html?medium=动画"><span class="side-icon">▸</span>动画<span class="side-count" id="nav-animation">0</span></a>
+          <a class="side-link" href="./categories/index.html"><span class="side-icon">#</span>年份索引</a>
+        </div>
+        <div class="side-group">
+          <p class="side-title">最近加入</p>
+          <div class="side-recent" id="side-recent"></div>
+        </div>
+        <div class="side-note">
+          <strong>个人影视维基</strong>
+          只记录看过的作品。分类、搜索和条目页都在本地运行，不需要服务器。
+        </div>
+      </aside>
+    <main class="main" id="main">
+      
+      <nav class="breadcrumb"><a href="./index.html">首页</a><span>/</span><span>本地编辑</span></nav>
+      <p class="page-kicker">LOCAL EDITOR</p>
+      <h1 class="page-title">本地编辑</h1>
+      <p class="page-lede">在左侧搜索并选择一部作品，右边记录观看日期、我的标签、最记得的镜头和影评。内容保存在当前浏览器里，不需要服务器。</p>
+
+      <div class="editor-notice">
+        <strong>保存位置：</strong>当前浏览器 · 当前这台电脑。清理浏览器数据、换浏览器或换电脑后不会自动带走。
+        建议写完定期点“导出备份”，把 JSON 文件放到网盘或文件夹里。
+      </div>
+
+      <div class="editor-toolbar">
+        <span class="editor-count"><strong id="local-count">0</strong> 条本地修改</span>
+        <div class="editor-toolbar-actions">
+          <button class="button secondary" type="button" id="add-entry">＋ 添加影片</button>
+          <button class="button" type="button" id="export-json">导出备份</button>
+          <label class="button secondary" for="import-json">导入备份</label>
+          <input id="import-json" type="file" accept="application/json,.json" hidden>
+          <button class="button ghost-danger" type="button" id="clear-all">清空全部</button>
+        </div>
+      </div>
+
+      <div class="editor-layout">
+        <section class="editor-list-panel" aria-label="条目列表">
+          <div class="editor-list-head">
+            <label class="table-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m20 20-3.5-3.5"></path>
+              </svg>
+              <input id="editor-search" type="search" placeholder="搜索要编辑的片名…" aria-label="搜索要编辑的条目">
+            </label>
+          </div>
+          <div class="editor-list" id="editor-list"></div>
+        </section>
+
+        <section class="editor-form-panel">
+          <div class="editor-empty" id="editor-empty">
+            <span class="editor-empty-mark">✎</span>
+            <h2>从左侧选择一个条目</h2>
+            <p>可以搜索片名、英文名、导演或题材，然后开始写影评。</p>
+          </div>
+
+          <form id="review-form" hidden>
+            <div class="editor-form-head">
+              <span class="editor-mark" id="editor-mark"></span>
+              <div class="editor-form-title">
+                <h2 id="editor-title"></h2>
+                <p id="editor-meta"></p>
+              </div>
+              <a class="button secondary" id="editor-view" href="#">查看条目</a>
+            </div>
+
+            <div class="form-grid">
+              <label>观看状态
+                <select id="edit-status">
+                  <option value="看过">看过</option>
+                  <option value="在看">在看</option>
+                  <option value="想看">想看</option>
+                  <option value="弃看">弃看</option>
+                </select>
+              </label>
+              <label>我的评分
+                <input id="edit-rating" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0 - 10，可留空">
+              </label>
+            </div>
+
+            <div class="watch-field">
+              <div class="watch-field-head">
+                <span>观看记录</span>
+                <span class="field-hint" id="watch-summary">还没记录观看日期</span>
+              </div>
+              <div class="watch-add">
+                <div class="watch-date-selects">
+                  <input id="film-watch-year" type="number" min="2016" max="2100" inputmode="numeric" aria-label="观看年份" placeholder="年">
+                  <input id="film-watch-month" type="number" min="1" max="12" inputmode="numeric" aria-label="观看月份" placeholder="月">
+                  <input id="film-watch-day" type="number" min="1" max="31" inputmode="numeric" aria-label="观看日期" placeholder="日">
+                </div>
+                <button class="button secondary" type="button" id="add-watch-date">添加一次观看</button>
+              </div>
+              <div class="watch-chips" id="watch-chips"></div>
+              <span class="field-hint">每次重看添加一个日期，重看次数会自动计算。</span>
+            </div>
+
+            <div class="tag-field">
+              <div class="tag-field-head">
+                <span>我的标签</span>
+                <button class="tag-reset" type="button" id="reset-tags">恢复默认标签</button>
+              </div>
+              <div class="tag-editor" id="tag-editor">
+                <div class="tag-editor-chips" id="tag-chips"></div>
+                <input id="tag-input" type="text" placeholder="输入新标签后按 Enter，例如：黑色幽默" autocomplete="off">
+              </div>
+              <span class="field-hint">这里是你自己的情绪标签，不只是题材。新增标签会自动进入分类浏览、筛选和搜索。</span>
+            </div>
+
+            <label class="form-full">最记得的一个镜头
+              <textarea id="edit-favorite-shot" rows="3" placeholder="一个画面、一句台词，或者写成 00:42:10 的那一刻……"></textarea>
+            </label>
+
+            <label class="form-full">影评 / 观后感
+              <textarea id="edit-review" rows="10" placeholder="写下你的观后感、当时的情绪、想推荐给谁……"></textarea>
+              <span class="char-count" id="review-count">0 字</span>
+            </label>
+
+            <div class="editor-actions">
+              <button class="button" type="submit">保存到本浏览器</button>
+              <button class="button secondary" type="button" id="reset-entry">恢复此条</button>
+              <button class="button ghost-danger" type="button" id="delete-custom-entry" hidden>删除这部影片</button>
+              <span class="save-status" id="save-status"></span>
+            </div>
+          </form>
+        </section>
+      </div>
+      <div class="entry-modal" id="add-entry-modal" hidden>
+        <button class="entry-modal-backdrop" type="button" data-close-add-entry aria-label="关闭添加影片窗口"></button>
+        <form class="entry-modal-card" id="add-entry-form">
+          <div class="entry-modal-head">
+            <div>
+              <p class="page-kicker">NEW TITLE</p>
+              <h2>添加影片</h2>
+            </div>
+            <button class="entry-modal-close" type="button" data-close-add-entry aria-label="关闭">×</button>
+          </div>
+          <div class="entry-modal-grid">
+            <label class="form-full">片名
+              <input id="new-entry-title" type="text" maxlength="80" required autocomplete="off">
+            </label>
+            <label>原名
+              <input id="new-entry-original" type="text" maxlength="120" autocomplete="off">
+            </label>
+            <label>年份
+              <input id="new-entry-year" type="number" min="1888" max="2100" inputmode="numeric">
+            </label>
+            <label>类型
+              <select id="new-entry-medium">
+                <option value="电影">电影</option>
+                <option value="剧集">剧集</option>
+                <option value="动画">动画</option>
+                <option value="纪录片">纪录片</option>
+              </select>
+            </label>
+            <label>题材标签
+              <input id="new-entry-genres" type="text" placeholder="用逗号分隔，例如：剧情，悬疑" autocomplete="off">
+            </label>
+            <label>导演 / 主创
+              <input id="new-entry-creator" type="text" maxlength="80" autocomplete="off">
+            </label>
+            <label>地区
+              <input id="new-entry-region" type="text" maxlength="40" autocomplete="off">
+            </label>
+            <label class="form-full">小海报（可选）
+              <input id="new-entry-poster" type="file" accept="image/*">
+            </label>
+            <label class="form-full">一句话简介
+              <input id="new-entry-blurb" type="text" maxlength="300" autocomplete="off">
+            </label>
+          </div>
+          <div class="entry-modal-actions">
+            <button class="button secondary" type="button" data-close-add-entry>取消</button>
+            <button class="button" type="submit">添加到片单</button>
+          </div>
+        </form>
+      </div>
+
+      <footer class="site-footer">
+        <span>© <span data-year></span> 银幕档案 · 个人观影记录</span>
+        <span>所有片单、评分与海报均保存在本机</span>
+        <span><a href="./index.html">首页</a> · <a href="./entries/index.html">全部条目</a> · <a href="./categories/index.html">分类</a></span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="./assets/entries.js"></script>
+  <script src="./assets/posters.js"></script>
+  <script src="./assets/custom-entries.js"></script>
+  <script src="./assets/quotes.js"></script>
+  <script src="./assets/site.js"></script>
+  <script src="./assets/editor.js"></script>
+</body>
+</html>
